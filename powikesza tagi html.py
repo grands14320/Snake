@@ -20,3 +20,6 @@ with open(r"D:\zadanie.txt", "r+") as f:
                 schowek.append(zdanie[litera])
     print(schowek)
     print("".join(schowek),end='')
+
+    xd
+    tylko c++
