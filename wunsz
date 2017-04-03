@@ -1,46 +1,57 @@
-import pygame
-class game():
+import pygame, time, random
+class Game:
     def __init__(self):
-        pygame.init()  # inicjalizuje moduly pythona
-        self.clock = pygame.time.Clock()
-        self.window = pygame.display.set_mode((800, 600))  # tworzy okno
-        pygame.display.set_caption("wunsz")  # ustawia tytuł
-        self.x = 300
-        self.y = 300
-        self.kieruj_x = 0
-        self.kieruj_y = 0
-        self.gameExit = False
-        while not self.gameExit:
-            # petla zbierajaca zdarzenia
+        pygame.init()
+        self.szerokna = 800
+        self.wysokna = 600
+        self.posx = self.szerokna /2
+        self.posy = self.wysokna /2
+        self.window = pygame.display.set_mode((self.szerokna, self.wysokna))
+        pygame.display.set_caption("takietamtest")
+
+
+    def event(self):
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.gameExit = True
-                if event.type == pygame.KEYDOWN:
+                    exit()
+                elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        self.kieruj_x = -60
-                        self.kieruj_y = 0
-                    elif event.key == pygame.K_RIGHT:
-                        self.kieruj_x = 60
-                        self.kieruj_y = 0
-                    elif event.key == pygame.K_UP:
-                        self.kieruj_y = -60
-                        self.kieruj_x = 0
-                    elif event.key == pygame.K_DOWN:
-                        self.kieruj_y = 60
-                        self.kieruj_x = 0
-            if self.x >= 800 or self.x < 0 or self.y >= 600 or self.y < 0:
-                self.gameExit = True
-            self.x += self.kieruj_x
-            self.y += self.kieruj_y
-            self.clock.tick(10)
-            game.draw(self)
+                        self.posx += -10
+                    if event.key == pygame.K_RIGHT:
+                        self.posx += 10
+                    if event.key == pygame.K_UP:
+                        self.posy += -10
+                    if event.key == pygame.K_DOWN:
+                        self.posy += 10
+            Game.draw(self)
+            Game.japko(self)
+            if self.posx > 800 or self.posx < 0 or self.posy > 600 or self.posy < 0:
+                time.sleep(1)
+                Game.gameover(self,)
+                exit()
 
     def draw(self):
-        self.window.fill((65, 65, 65))  # okresla kolor tłą
-        pygame.draw.rect(self.window, (90, 90, 90), (self.x, self.y, 60, 60))  # maluje kwadrat
-        pygame.display.update()  # mozna podac jako argument obiekt ktory ma odswierzyc,brak arg == wszystko odswierza
+        clock = pygame.time.Clock()
+        clock.tick(20)
+        self.window.fill((80, 80, 150))
+        pygame.draw.rect(self.window, (80, 80, 80), (self.posx, self.posy, 60, 60))
+        pygame.display.update()
 
-    def tick(self):
-        pass
-if __name__ == "__main__":
-    g = game()
+    def gameover(self):
+        font = pygame.font.SysFont(None, 25)
+        windowText = font.render("przegrales wcisnij Q by wyjsc ", True, (80, 190, 170))
+        self.window.blit(windowText, [400, 300])
+        pygame.display.update()
+        while True:
+            for q in pygame.event.get():
+                if q.type == pygame.KEYDOWN:
+                    if q.key == pygame.K_q:
+                        exit()
+    def japko(self):
+        xapple = random.randrange(0,self.szerokna )
+        yaplle = random.randrange(0,self.wysokna )
+        pygame.draw.rect(self.window, (255, 255, 255), (xapple, yaplle, 60, 60))
+        pygame.display.update()
+g = Game()
+g.event()
