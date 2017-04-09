@@ -1,57 +1,103 @@
-import pygame, time, random
+import pygame
+import time
+import random
+
+
 class Game:
     def __init__(self):
         pygame.init()
-        self.szerokna = 800
-        self.wysokna = 600
-        self.posx = self.szerokna /2
-        self.posy = self.wysokna /2
-        self.window = pygame.display.set_mode((self.szerokna, self.wysokna))
-        pygame.display.set_caption("takietamtest")
+        self.width_window = 780
+        self.height_window = 600
+        self.head_x = 0
+        self.head_y = 0
+        self.continue_x = 0
+        self.continue_y = 0
+        self.eaten_up = False
+        self.apple_x = 0
+        self.apple_y = 0
+        self.window = pygame.display.set_mode((self.width_window, self.height_window))
+        self.snake_length = 1
+        self.snake_block_cords = []
+        pygame.display.set_caption("wunsz")
 
+    def game_loop(self):
+        while True:
+            if self.eaten_up is False:
+                Game.random_apple_cords(self)
+            Game.event(self)
+
+            self.snake_block_cords.append((self.head_x, self.head_y))
+            if len(self.snake_block_cords) > self.snake_length:
+                self.snake_block_cords.pop(0)
+
+            Game.draw(self)
+            Game.check_collision(self)
+            Game.head_on_apple(self)
 
     def event(self):
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    exit()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        self.posx += -10
-                    if event.key == pygame.K_RIGHT:
-                        self.posx += 10
-                    if event.key == pygame.K_UP:
-                        self.posy += -10
-                    if event.key == pygame.K_DOWN:
-                        self.posy += 10
-            Game.draw(self)
-            Game.japko(self)
-            if self.posx > 800 or self.posx < 0 or self.posy > 600 or self.posy < 0:
-                time.sleep(1)
-                Game.gameover(self,)
+        clock = pygame.time.Clock()
+        clock.tick(5)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    self.continue_x = -60
+                    self.continue_y = 0
+                if event.key == pygame.K_RIGHT:
+                    self.continue_x = 60
+                    self.continue_y = 0
+                if event.key == pygame.K_UP:
+                    self.continue_y = -60
+                    self.continue_x = 0
+                if event.key == pygame.K_DOWN:
+                    self.continue_y = 60
+                    self.continue_x = 0
+        self.head_y += self.continue_y
+        self.head_x += self.continue_x
 
     def draw(self):
-        clock = pygame.time.Clock()
-        clock.tick(20)
-        self.window.fill((80, 80, 150))
-        pygame.draw.rect(self.window, (80, 80, 80), (self.posx, self.posy, 60, 60))
+        self.window.fill((150, 100, 150))
+        Game.snake(self)
+        pygame.draw.rect(self.window, (255, 0, 0), (self.apple_x, self.apple_y, 60, 60))  #japko
         pygame.display.update()
 
-    def gameover(self):
+    def game_over(self, text):
         font = pygame.font.SysFont(None, 25)
-        windowText = font.render("przegrales wcisnij Q by wyjsc ", True, (80, 190, 170))
-        self.window.blit(windowText, [400, 300])
+        window_text = font.render(text, True, (80, 190, 170))
+        self.window.blit(window_text, (self.width_window / 2 - font.size(text)[0] / 2, self.height_window / 2 - font.size(text)[1] / 2))
+        # 0 print((font.size(text)))
         pygame.display.update()
         while True:
             for q in pygame.event.get():
+                if q.type == pygame.QUIT:
+                    exit()
                 if q.type == pygame.KEYDOWN:
                     if q.key == pygame.K_q:
                         exit()
-    def japko(self):
-        xapple = random.randrange(0,self.szerokna )
-        yaplle = random.randrange(0,self.wysokna )
-        pygame.draw.rect(self.window, (255, 255, 255), (xapple, yaplle, 60, 60))
-        pygame.display.update()
+
+    def random_apple_cords(self):
+        self.apple_x = random.randrange(1, self.width_window / 60) * 60
+        self.apple_y = random.randrange(1, self.height_window / 60) * 60
+        self.eaten_up = True
+
+    def head_on_apple(self):
+        if self.head_x == self.apple_x and self.head_y == self.apple_y:
+            self.snake_length += 1
+            self.eaten_up = False
+
+    def check_collision(self):
+        if self.head_x >= self.width_window or self.head_x < 0 or self.head_y >= self.height_window or self.head_y < 0:
+            time.sleep(1)
+            Game.game_over(self, "przegrales wcisnij Q by wyjsc ")
+        if self.snake_length >= 2 and (self.head_x, self.head_y) in self.snake_block_cords[0:-1:]:
+            time.sleep(1)
+            Game.game_over(self, "przegrales wcisnij Q by wyjsc ")
+
+    def snake(self):
+        for x, y in self.snake_block_cords:
+            pygame.draw.rect(self.window, (3, 117, 37), (x, y, 60, 60))  # wunsz
+
+
 g = Game()
-g.event()
+g.game_loop()
